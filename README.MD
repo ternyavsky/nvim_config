@@ -1,11 +1,9 @@
-# Nvim as Python / Rust / any another language IDE!
+# Nvim config 
 
 
 
 ```sh
-brew install nvim
-brew install rust-analyzer
-brew install ripgrep
+apt/peotry/brew install nvim
 npm install -g pyright
 ```
 

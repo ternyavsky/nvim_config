@@ -5,6 +5,7 @@ set cursorline
 set noswapfile
 set scrolloff=7
 
+
 set tabstop=4
 set softtabstop=4
 set shiftwidth=4
@@ -12,7 +13,6 @@ set expandtab
 set autoindent
 set fileformat=unix
 filetype indent on      " load filetype-specific indent files
-
 " for tabulation
 set smartindent
 set tabstop=2
@@ -28,10 +28,18 @@ inoremap jk <esc>
 call plug#begin('~/.vim/plugged')
 
 Plug 'neovim/nvim-lspconfig'
-Plug 'hrsh7th/nvim-cmp'
+Plug 'neovim/nvim-lspconfig'
 Plug 'hrsh7th/cmp-nvim-lsp'
-Plug 'saadparwaiz1/cmp_luasnip'
+Plug 'hrsh7th/nvim-cmp'
+
 Plug 'L3MON4D3/LuaSnip'
+Plug 'https://github.com/vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+Plug 'm4xshen/autoclose.nvim'
+
+
+let g:airline#extensions#tabline#enabled = 1
+let g:airline_theme='base16_synth_midnight_dark'
 
 " color schemas
 Plug 'morhetz/gruvbox'  " colorscheme gruvbox
@@ -90,14 +98,14 @@ let g:prettier#quickfix_enabled = 0
 " Turn on vim-sneak
 let g:sneak#label = 1
 
-colorscheme gruvbox
+"colorscheme gruvbox
 "colorscheme OceanicNext
-"let g:material_terminal_italics = 1
+let g:material_terminal_italics = 1
 " variants: default, palenight, ocean, lighter, darker, default-community,
 "           palenight-community, ocean-community, lighter-community,
 "           darker-community
 "let g:material_theme_style = 'darker'
-"colorscheme material
+colorscheme material
 if (has('termguicolors'))
   set termguicolors
 endif
@@ -120,13 +128,13 @@ local async = require "plenary.async"
 -- nvim-cmp setup
 local cmp = require 'cmp'
 cmp.setup {
-  completion = {
-    autocomplete = false
-  },
   snippet = {
     expand = function(args)
       require('luasnip').lsp_expand(args.body)
     end,
+  },
+  window = {
+    completion = cmp.config.window.bordered()
   },
   mapping = {
     ['<C-p>'] = cmp.mapping.select_prev_item(),
@@ -378,6 +386,8 @@ require("auto-save").setup(
     {
     }
 )
+
+require("autoclose").setup()
 EOF
 
 " Telescope fzf plugin

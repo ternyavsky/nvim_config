@@ -1,6 +1,7 @@
 set mouse=a  " enable mouse
 set encoding=utf-8
 set number
+set cursorline
 set noswapfile
 set scrolloff=7
 
@@ -18,6 +19,10 @@ set tabstop=2
 set expandtab
 set shiftwidth=2
 
+" horizontal split open below and right
+set splitbelow
+set splitright
+
 inoremap jk <esc>
 
 call plug#begin('~/.vim/plugged')
@@ -27,16 +32,8 @@ Plug 'hrsh7th/nvim-cmp'
 Plug 'hrsh7th/cmp-nvim-lsp'
 Plug 'saadparwaiz1/cmp_luasnip'
 Plug 'L3MON4D3/LuaSnip'
-Plug 'robitx/gp.nvim'
-Plug 'folke/tokyonight.nvim'
-Plug 'neoclide/coc-css'
-Plug 'nvim-treesitter/nvim-treesitter'
-Plug 'tree-sitter/tree-sitter-html'
-Plug 'windwp/nvim-ts-autotag'
 
 " color schemas
-
-"
 Plug 'morhetz/gruvbox'  " colorscheme gruvbox
 Plug 'mhartington/oceanic-next'  " colorscheme OceanicNext
 Plug 'kaicataldo/material.vim', { 'branch': 'main' }
@@ -63,14 +60,15 @@ Plug 'prettier/vim-prettier', {
 
 Plug 'bmatcuk/stylelint-lsp'
 
-Plug 'mattn/emmet-vim'
-Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.0' }
+Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.5' }
 Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
 
 " Convenient floating terminal window
 "Plug 'voldikss/vim-floaterm'
 
 Plug 'ray-x/lsp_signature.nvim'
+
+Plug 'lspcontainers/lspcontainers.nvim'
 
 call plug#end()
 
@@ -91,19 +89,14 @@ let g:prettier#quickfix_enabled = 0
 
 " Turn on vim-sneak
 let g:sneak#label = 1
-let g:coc_global_extensions = ['coc-emmet', 'coc-css', 'coc-html']
+
 colorscheme gruvbox
 "colorscheme OceanicNext
-
-"colorscheme tokyonight-night
-"colorscheme tokyonight-storm
-"colorscheme tokyonight-day
-"colorscheme tokyonight-moon
 "let g:material_terminal_italics = 1
 " variants: default, palenight, ocean, lighter, darker, default-community,
 "           palenight-community, ocean-community, lighter-community,
 "           darker-community
-"let g:material_theme_style = 'palenight'
+"let g:material_theme_style = 'darker'
 "colorscheme material
 if (has('termguicolors'))
   set termguicolors
@@ -123,108 +116,53 @@ vim.o.completeopt = 'menuone,noselect'
 -- luasnip setup
 local luasnip = require 'luasnip'
 local async = require "plenary.async"
-local conf = {
-	-- required openai api key
-	openai_api_key = os.getenv('OPENAI_API_KEY'), 
-	-- prefix for all commands
-	cmd_prefix = "Gp",
-	-- example hook functions
-	hooks = {
-		InspectPlugin = function(plugin, params)
-			print(string.format("Plugin structure:\n%s", vim.inspect(plugin)))
-			print(string.format("Command params:\n%s", vim.inspect(params)))
-		end,
 
-		-- -- example of making :%GpChatNew a dedicated command which
-		-- -- opens new chat with the entire current buffer as a context
-		-- BufferChatNew = function(plugin, _)
-		--     -- call GpChatNew command in range mode on whole buffer
-		--     vim.api.nvim_command("%" .. plugin.config.cmd_prefix .. "ChatNew")
-		-- end,
-	},
-
-	-- directory for storing chat files
-	chat_dir = vim.fn.stdpath('data'):gsub("/$", "") .. "/gp/chats",
-	-- chat model (string with model name or table with model name and parameters)
-	chat_model = { model = "gpt-3.5-turbo-16k", temperature = 0.7, top_p = 1 },
-	-- chat model system prompt
-	chat_system_prompt = "You are a general AI assistant.",
-	-- chat user prompt prefix
-	chat_user_prefix = "🗨:",
-	-- chat assistant prompt prefix
-	chat_assistant_prefix = "🤖:",
-	-- chat topic generation prompt
-	chat_topic_gen_prompt = "Summarize the topic of our conversation above"
-		.. " in two or three words. Respond only with those words.",
-	-- chat topic model (string with model name or table with model name and parameters)
-	chat_topic_gen_model = "gpt-3.5-turbo-16k",
-	-- explicitly confirm deletion of a chat file
-	chat_confirm_delete = true,
-	-- conceal model parameters in chat
-	chat_conceal_model_params = true,
-	-- local shortcuts bound to the chat buffer
-	-- (be careful to choose something which will work across specified modes)
-	chat_shortcut_respond = { modes = { "n", "i", "v", "x" }, shortcut = "<C-g><C-g>" },
-	chat_shortcut_delete = { modes = { "n", "i", "v", "x" }, shortcut = "<C-g>d" },
-
-	-- command prompt prefix for asking user for input
-	command_prompt_prefix = "🤖 ~ ",
-	-- command model (string with model name or table with model name and parameters)
-	command_model = { model = "gpt-3.5-turbo-16k", temperature = 0.7, top_p = 1 },
-	-- command system prompt
-	command_system_prompt = "You are an AI that strictly generates just the formated final code.",
-
-	-- templates
-	template_selection = "I have the following code from {{filename}}:\n\n```{{filetype}}\n{{selection}}\n```\n\n{{command}}",
-	template_rewrite = "I have the following code from {{filename}}:\n\n```{{filetype}}\n{{selection}}\n```\n\n{{command}}"
-		.. "\n\nRespond just with the formated final code. !!And please: No ``` code ``` blocks.",
-	template_command = "{{command}}",
-}
-
-
-
--- call setup on your config
-require("gp").setup()-- nvim-cmp setup
+-- nvim-cmp setup
 local cmp = require 'cmp'
-  cmp.setup({
-
-  completion = { 
-        autocompete = true
+cmp.setup {
+  completion = {
+    autocomplete = false
   },
-    snippet = {
-      -- REQUIRED - you must specify a snippet engine
-       expand = function(args)
+  snippet = {
+    expand = function(args)
       require('luasnip').lsp_expand(args.body)
     end,
-        },
-    window = {
-      -- completion = cmp.config.window.bordered(),
-      -- documentation = cmp.config.window.bordered(),
+  },
+  mapping = {
+    ['<C-p>'] = cmp.mapping.select_prev_item(),
+    ['<C-n>'] = cmp.mapping.select_next_item(),
+    ['<C-d>'] = cmp.mapping.scroll_docs(-4),
+    ['<C-f>'] = cmp.mapping.scroll_docs(4),
+    ['<C-Space>'] = cmp.mapping.complete(),
+    ['<C-e>'] = cmp.mapping.close(),
+    ['<CR>'] = cmp.mapping.confirm {
+      behavior = cmp.ConfirmBehavior.Replace,
+      select = true,
     },
-    mapping = cmp.mapping.preset.insert({
-      ['<C-b>'] = cmp.mapping.scroll_docs(-4),
-      ['<C-f>'] = cmp.mapping.scroll_docs(4),
-      ['<C-Space>'] = cmp.mapping.complete(),
-      ['<C-e>'] = cmp.mapping.abort(),
-      ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
-    }),
-    sources = cmp.config.sources({
-      { name = 'nvim_lsp' },
-      { name = 'vsnip' }, -- For vsnip users.
-      -- { name = 'luasnip' }, -- For luasnip users.
-      -- { name = 'ultisnips' }, -- For ultisnips users.
-      -- { name = 'snippy' }, -- For snippy users.
-    }, {
-      { name = 'buffer' },
-    })
-  })
-
-require'nvim-treesitter.configs'.setup {
-  autotag = {
-    enable = true,
-  }
+    ['<Tab>'] = function(fallback)
+      if vim.fn.pumvisible() == 1 then
+        vim.fn.feedkeys(vim.api.nvim_replace_termcodes('<C-n>', true, true, true), 'n')
+      elseif luasnip.expand_or_jumpable() then
+        vim.fn.feedkeys(vim.api.nvim_replace_termcodes('<Plug>luasnip-expand-or-jump', true, true, true), '')
+      else
+        fallback()
+      end
+    end,
+    ['<S-Tab>'] = function(fallback)
+      if vim.fn.pumvisible() == 1 then
+        vim.fn.feedkeys(vim.api.nvim_replace_termcodes('<C-p>', true, true, true), 'n')
+      elseif luasnip.jumpable(-1) then
+        vim.fn.feedkeys(vim.api.nvim_replace_termcodes('<Plug>luasnip-jump-prev', true, true, true), '')
+      else
+        fallback()
+      end
+    end,
+  },
+  sources = {
+    { name = 'nvim_lsp' },
+    { name = 'luasnip' },
+  },
 }
-require('nvim-ts-autotag').setup()
 
 local nvim_lsp = require('lspconfig')
 
@@ -311,20 +249,10 @@ require'lspconfig'.stylelint_lsp.setup{
   }
 }
 
-local capabilities = vim.lsp.protocol.make_client_capabilities()
-capabilities.textDocument.completion.completionItem.snippetSupport = true
 
-
-require'lspconfig'.cssls.setup{
-  capabilities = capabilities,
-  
-}
-require'lspconfig'.html.setup{
-  capabilities= capabilities,
-}
 -- Use a loop to conveniently call 'setup' on multiple servers and
 -- map buffer local keybindings when the language server attaches
-local servers = { 'pyright', 'rust_analyzer', 'gopls'}
+local servers = { 'pyright', 'rust_analyzer' }
 for _, lsp in ipairs(servers) do
   nvim_lsp[lsp].setup {
     on_attach = on_attach,
@@ -393,7 +321,7 @@ function! s:Bclose(bang, buffer)
       " Numbers of listed buffers which are not the target to be deleted.
       let blisted = filter(range(1, bufnr('$')), 'buflisted(v:val) && v:val != btarget')
       " Listed, not target, and not displayed.
-      let bhidden = filter(copy(blisted), 'bufwinnr(v:val) < 0')
+      let bhidden = filter(eopy(blisted), 'bufwinnr(v:val) < 0')
       " Take the first buffer, if any (could be more intelligent).
       let bjump = (bhidden + blisted + [-1])[0]
       if bjump > 0
@@ -420,12 +348,16 @@ autocmd FileType python imap <buffer> <C-h> <esc>:w<CR>:exec '!python3.11' shell
 autocmd FileType c map <buffer> <C-h> :w<CR>:exec '!gcc' shellescape(@%, 1) '-o out; ./out'<CR>
 autocmd FileType c imap <buffer> <C-h> <esc>:w<CR>:exec '!gcc' shellescape(@%, 1) '-o out; ./out'<CR>
 
+autocmd FileType go map <buffer> <C-h> :w<CR>:exec '!go run' shellescape(@%, 1)<CR>
+autocmd FileType go imap <buffer> <C-h> <esc>:w<CR>:exec '!go run' shellescape(@%, 1)<CR>
+
 autocmd FileType sh map <buffer> <C-h> :w<CR>:exec '!bash' shellescape(@%, 1)<CR>
 autocmd FileType sh imap <buffer> <C-h> <esc>:w<CR>:exec '!bash' shellescape(@%, 1)<CR>
 
+autocmd FileType python set colorcolumn=88
 
-set relativenumber
-set rnu
+" set relativenumber
+" set rnu
 
 let g:transparent_enabled = v:true
 
@@ -448,7 +380,6 @@ require("auto-save").setup(
 )
 EOF
 
-
 " Telescope fzf plugin
 lua << EOF
 require('telescope').load_extension('fzf')
@@ -463,3 +394,4 @@ hi DiagnosticError guifg=White
 hi DiagnosticWarn  guifg=White
 hi DiagnosticInfo  guifg=White
 hi DiagnosticHint  guifg=White
+

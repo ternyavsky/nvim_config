@@ -6,8 +6,10 @@ set noswapfile
 set scrolloff=7
 
 
+
 set tabstop=4
 set softtabstop=4
+set clipboard+=unnamedplus
 set shiftwidth=4
 set expandtab
 set autoindent

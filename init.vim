@@ -30,7 +30,6 @@ inoremap jk <esc>
 call plug#begin('~/.vim/plugged')
 
 Plug 'neovim/nvim-lspconfig'
-Plug 'neovim/nvim-lspconfig'
 Plug 'hrsh7th/cmp-nvim-lsp'
 Plug 'hrsh7th/nvim-cmp'
 
@@ -38,7 +37,7 @@ Plug 'L3MON4D3/LuaSnip'
 Plug 'https://github.com/vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'm4xshen/autoclose.nvim'
-
+Plug 'nvim-tree/nvim-web-devicons'
 
 let g:airline#extensions#tabline#enabled = 1
 let g:airline_theme='base16_synth_midnight_dark'
@@ -388,6 +387,8 @@ require("auto-save").setup(
     {
     }
 )
+
+require'nvim-web-devicons'.setup({})
 
 require("autoclose").setup()
 EOF

@@ -29,10 +29,14 @@ inoremap jk <esc>
 
 call plug#begin('~/.vim/plugged')
 
+Plug 'github/copilot.vim'
+Plug 'nvim-tree/nvim-web-devicons' 
+Plug 'akinsho/bufferline.nvim', { 'tag': '*' }
+Plug 'norcalli/nvim-colorizer.lua'
+Plug 'williamboman/nvim-lsp-installer'
 Plug 'neovim/nvim-lspconfig'
 Plug 'hrsh7th/cmp-nvim-lsp'
 Plug 'hrsh7th/nvim-cmp'
-
 Plug 'L3MON4D3/LuaSnip'
 Plug 'https://github.com/vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
@@ -100,7 +104,7 @@ let g:prettier#quickfix_enabled = 0
 let g:sneak#label = 1
 
 "colorscheme gruvbox
-"colorscheme OceanicNext
+""colorscheme OceanicNext
 let g:material_terminal_italics = 1
 " variants: default, palenight, ocean, lighter, darker, default-community,
 "           palenight-community, ocean-community, lighter-community,
@@ -111,15 +115,19 @@ if (has('termguicolors'))
   set termguicolors
 endif
 
+
 " variants: mirage, dark, dark
 "let ayucolor="mirage"
-"colorscheme ayu
+""colorscheme ayu
 
 " turn off search highlight
 nnoremap ,<space> :nohlsearch<CR>
 
 lua << EOF
 -- Set completeopt to have a better completion experience
+
+require"bufferline".setup()
+require'colorizer'.setup()
 vim.o.completeopt = 'menuone,noselect'
 
 -- luasnip setup
@@ -127,6 +135,7 @@ local luasnip = require 'luasnip'
 local async = require "plenary.async"
 
 -- nvim-cmp setup
+require("nvim-lsp-installer").setup{}
 local cmp = require 'cmp'
 cmp.setup {
   snippet = {
@@ -261,7 +270,7 @@ require'lspconfig'.stylelint_lsp.setup{
 
 -- Use a loop to conveniently call 'setup' on multiple servers and
 -- map buffer local keybindings when the language server attaches
-local servers = { 'pyright', 'rust_analyzer' }
+local servers = { 'pyright', 'rust_analyzer', 'tailwindcss', 'emmet_ls' }
 for _, lsp in ipairs(servers) do
   nvim_lsp[lsp].setup {
     on_attach = on_attach,
@@ -270,6 +279,7 @@ for _, lsp in ipairs(servers) do
     }
   }
 end
+
 EOF
 
 

@@ -8,14 +8,12 @@ local M = {
     "hrsh7th/cmp-cmdline",
     "saadparwaiz1/cmp_luasnip",
     "L3MON4D3/LuaSnip",
-    "zbirenbaum/copilot-cmp",
     "rafamadriz/friendly-snippets", -- Добавляем этот плагин
   },
 }
 
 M.config = function()
   local cmp = require "cmp"
-  local copilot = require "copilot"
   require("luasnip.loaders.from_vscode").lazy_load()
 
   cmp.setup {

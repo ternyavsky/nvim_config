@@ -36,10 +36,7 @@ M.config = function()
       ["<C-e>"] = cmp.mapping.abort(),
       ["<CR>"] = cmp.mapping.confirm { select = true },
       ["<Tab>"] = cmp.mapping(function(fallback)
-        if require("copilot.suggestion").is_visible() then
-          require("copilot.suggestion").accept() -- Accept Copilot suggestion
-        -- If nvim-cmp menu is visible, select the next item
-        elseif cmp.visible() then
+        if cmp.visible() then
           cmp.select_next_item()
         -- Otherwise, fallback to default Tab behavior
         else
